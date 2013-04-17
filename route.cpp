@@ -16,6 +16,7 @@ route::route(city* origin, city* destination, string typeOfTransport, double avg
 	this->origin = origin;
 	this->destination = destination;
 	this->typeOfTransport = typeOfTransport;
+	this->actualTime = avgTime;
 	this->actualCost = avgCost;
 	if(strcmp("plane", typeOfTransport.c_str()) == 0){
 		this->flightMultiplier = 9999999.99;
@@ -23,7 +24,7 @@ route::route(city* origin, city* destination, string typeOfTransport, double avg
 	else{
 		this->flightMultiplier = 1.0;
 	}
+	this->avgTime = (this->flightMultiplier * avgTime);
 	this->avgCost = (this->flightMultiplier * avgCost);
-	this->avgTime = avgTime;
 	this->notes = notes;
 }

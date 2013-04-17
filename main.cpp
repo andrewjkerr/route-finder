@@ -82,7 +82,11 @@ int main(){
 		cout << testVector[i]->getTypeOfTrasport() << endl;
 		cout << testVector[i]->getAvgCost() << endl;
 		cout << testVector[i]->getActualCost() << endl;
+		cout << "--" << endl;
+		cout << testVector[i]->getAvgTime() << endl;
+		cout << testVector[i]->getActualTime() << endl;
 		cout << "\n" << endl;
 	}
+
 	return 0;
 }

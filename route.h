@@ -22,6 +22,7 @@ public:
 	city* getDestination() {return destination;}
 	string getTypeOfTrasport() {return typeOfTransport;}
 	double getActualCost() {return actualCost;}
+	double getActualTime() {return actualTime;}
 	double getAvgTime() {return avgTime;}
 	double getAvgCost() {return avgCost;}
 	string getNotes() {return notes;}
@@ -30,7 +31,7 @@ private:
 	city* origin;
 	city* destination;
 	string typeOfTransport, notes;
-	double avgTime, avgCost, flightMultiplier, actualCost;
+	double avgTime, avgCost, flightMultiplier, actualCost, actualTime;
 };
 
 #endif
