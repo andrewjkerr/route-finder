@@ -45,6 +45,19 @@ public:
 	}
 };
 
+class ComparePath {
+public:
+	bool operator()(city* city1, city* city2) {
+		if(city1->pathvalue < city2->pathvalue){
+			return false;
+		}
+
+		else{
+			return true;
+		}
+	}
+};
+
 int main(){
 	ifstream cities;
 	cities.open("cities.csv");
@@ -190,6 +203,70 @@ int main(){
 	// DEBUG COUTS -- TESTING FINDING CITY POINTERS FROM HASHMAP
 	// cout << "Origin name: " << originCity->getCountry() << endl;
 	// cout << "Destination name: " << destinationCity->getCountry() << endl;
+
+	/*vector<route*> routesOnTheWay;
+	city* currentCity = originCity;
+	int i = 0;
+	while(currentCity->getCity().compare(destinationCity->getCity()) != 0 && i <= 10){
+		currentCity->visitCity();
+		vector<route*> currentCityDests = currentCity->getDestinations();
+		priority_queue<route*, vector<route*>, CompareCost> test1;
+		for(int i = 0; i < currentCityDests.size(); i++){
+			test1.push(currentCityDests[i]);
+		}
+		if(test1.top()->getDestination()->isVisited()){
+			test1.pop();
+		}
+		route* bestRoute = test1.top();
+		routesOnTheWay.push_back(bestRoute);
+		cout << "Destination City: " << bestRoute->getDestination()->getCountry() << endl;
+		currentCity = bestRoute->getDestination();
+		i++;
+	}*/
+
+	originCity->setPathValue(0);
+	priority_queue<city*, vector<city*>, ComparePath> pathQueue;
+	int curDistance = 0;
+	pathQueue.push(originCity);
+	while(!pathQueue.empty()){
+		city* temp = pathQueue.top();
+		pathQueue.pop();
+		if(temp->isVisited()){
+			continue;
+		}
+		if(temp->pathvalue == 99999999.99){
+			break;
+		}
+		vector<route*> tempDest = temp->getDestinations();
+		cout << temp->pathvalue << endl;
+		for(int i = 0; i < tempDest.size(); i++){
+			city* tempDestCity = tempDest[i]->getDestination();
+			if(tempDestCity->priorCity == NULL){
+				tempDestCity->setPriorCity(temp);
+			}
+			cout << tempDestCity->priorCity->getCity() << " goes to " << tempDestCity->getCity() << endl;
+			double tempDestWeight = tempDest[i]->getAvgTime();
+			if((!tempDestCity->isVisited()) && ((temp->pathvalue + tempDestWeight) < tempDestCity->pathvalue)){
+				cout << tempDestCity->getCity() << ": "<< temp->pathvalue + tempDestWeight << endl;
+				tempDestCity->setPathValue(temp->pathvalue + tempDestWeight);
+				pathQueue.push(tempDestCity);
+				tempDestCity->setPriorCity(temp);
+			}
+		}
+		temp->visitCity();
+	}
+
+	cout << "-------------------" << endl;
+
+	city* currentCity = destinationCity;
+	int i = 0;
+	while(currentCity != NULL && currentCity != originCity && i <= 10){
+		cout << currentCity->getCity() << endl;
+		currentCity = currentCity->priorCity;
+		i++;
+	}
+
+	cout << originCity->getCity() << endl;
 
 	return 0;
 }

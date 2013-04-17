@@ -18,6 +18,9 @@ city::city(string country, string cityName, string latitude, string longitude){
 	this->cityName = cityName;
 	this->latitude = latitude;
 	this->longitude = longitude;
+	this->visited = false;
+	this->priorCity = NULL;
+	this->pathvalue = 99999999.99;
 }
 
 void city::pb(route* datRoute){

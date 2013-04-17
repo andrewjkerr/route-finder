@@ -23,12 +23,19 @@ public:
 	string getCity() {return cityName;}
 	string getLatitude() {return latitude;}
 	string getLongitude() {return longitude;}
+	bool isVisited() {return visited;}
+	void visitCity(){this->visited = true;}
 	vector<route* > getDestinations() {return destinationRoutes;}
 	void pb(route* datRoute);
+	void setPathValue(double pathValue){this->pathvalue = pathValue;}
+	void setPriorCity(city* priorCity) {this->priorCity = priorCity;}
+	double pathvalue;
+	city* priorCity;
 
 private:
 	string country, cityName, latitude, longitude;
 	vector<route*> destinationRoutes;
+	bool visited;
 };
 
 #endif
