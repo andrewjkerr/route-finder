@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <queue>
 #include <vector>
 #include <string>
 #include <stdio.h>
@@ -16,6 +17,32 @@
 #include "route.h"
 
 using namespace std;
+
+class CompareCost {
+public:
+    bool operator()(route* route1, route* route2) {
+    	if(route1->getAvgCost() < route2->getAvgCost()){
+    		return false;
+    	}
+
+    	else{
+    		return true;
+    	}
+    }
+};
+
+class CompareTime {
+public:
+	bool operator()(route* route1, route* route2) {
+		if(route1->getAvgTime() < route2->getAvgTime()){
+			return false;
+		}
+
+		else{
+			return true;
+		}
+	}
+};
 
 int main(){
 	ifstream cities;
@@ -72,6 +99,9 @@ int main(){
 		}
 	}
 
+	// DEBUG COUT TO CONFIRM COMPILING
+	cout << "-- COMPILE CONFIRMED --" << endl;
+
 	// DEBUG -- TESTING MAPS
 	city* debugCity = cityMap["Abu Dhabi"];
 	vector<route* > testVector = debugCity->getDestinations();
@@ -86,6 +116,36 @@ int main(){
 		cout << testVector[i]->getAvgTime() << endl;
 		cout << testVector[i]->getActualTime() << endl;
 		cout << "\n" << endl;
+	}
+
+	// DEBUG -- TESTING PRIORITY QUEUE (COST)
+	priority_queue<route*, vector<route* >, CompareCost> costQueue;
+	// city* debugCity = cityMap["Abu Dhabi"];
+	// vector<route* > testVector = debugCity->getDestinations();
+	for(int i = 0; i < testVector.size(); i++){
+		costQueue.push(testVector[i]);
+	}
+
+	while(!costQueue.empty()){
+		route* tempRoute = costQueue.top();
+		cout << tempRoute->getDestination()->getCity() << endl;
+		costQueue.pop();
+	}
+
+	cout << "-------------------" << endl;
+
+	// DEBUG -- TESTING PRIORITY QUEUE (TIME)
+	priority_queue<route*, vector<route* >, CompareTime> timeQueue;
+	// city* debugCity = cityMap["Abu Dhabi"];
+	// vector<route* > testVector = debugCity->getDestinations();
+	for(int i = 0; i < testVector.size(); i++){
+		timeQueue.push(testVector[i]);
+	}
+
+	while(!timeQueue.empty()){
+		route* tempRoute = timeQueue.top();
+		cout << tempRoute->getDestination()->getCity() << endl;
+		timeQueue.pop();
 	}
 
 	return 0;
