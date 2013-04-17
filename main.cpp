@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 #include <queue>
 #include <vector>
 #include <string>
@@ -102,6 +103,7 @@ int main(){
 	// DEBUG COUT TO CONFIRM COMPILING
 	cout << "-- COMPILE CONFIRMED --" << endl;
 
+	/*
 	// DEBUG -- TESTING MAPS
 	city* debugCity = cityMap["Abu Dhabi"];
 	vector<route* > testVector = debugCity->getDestinations();
@@ -147,6 +149,47 @@ int main(){
 		cout << tempRoute->getDestination()->getCity() << endl;
 		timeQueue.pop();
 	}
+	*/
+
+	/******************************
+	 * 							  *
+	 * START DIJKSTRA'S ALGORITHM *
+	 * 							  *
+	 ******************************/
+	// DEBUG VALUES
+	string origin = "Italy";
+	string destination = "Kazakhstan";
+	city* originCity;
+	city* destinationCity;
+
+	// Let's grab the origin/destination pointers ;)
+	try {
+		originCity = cityMap.at(origin);
+	}
+	catch (const out_of_range& oor) {
+		try{
+			originCity = countryMap.at(origin);
+		}
+		catch(const std::out_of_range& oor){
+			cerr << "City/country does not exist! (Actual error: " << oor.what() << ")" << endl;
+		}
+	}
+
+	try {
+		destinationCity = cityMap.at(destination);
+	}
+	catch (const out_of_range& oor) {
+		try{
+			destinationCity = countryMap.at(destination);
+		}
+		catch(const std::out_of_range& oor){
+			cerr << "City/country does not exist! (Actual error: " << oor.what() << ")" << endl;
+		}
+	}
+
+	// DEBUG COUTS -- TESTING FINDING CITY POINTERS FROM HASHMAP
+	// cout << "Origin name: " << originCity->getCountry() << endl;
+	// cout << "Destination name: " << destinationCity->getCountry() << endl;
 
 	return 0;
 }
