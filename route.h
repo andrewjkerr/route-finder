@@ -20,7 +20,7 @@ public:
 	route(city* origin, city* destination, string typeOfTransport, double avgTime, double avgCost, string notes);
 	city* getOrigin(){return origin;}
 	city* getDestination() {return destination;}
-	string getTypeOfTrasport() {return typeOfTransport;}
+	string getTypeOfTransport() {return typeOfTransport;}
 	double getActualCost() {return actualCost;}
 	double getActualTime() {return actualTime;}
 	double getAvgTime() {return avgTime;}

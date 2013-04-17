@@ -9,6 +9,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <queue>
+#include <stack>
 #include <vector>
 #include <string>
 #include <stdio.h>
@@ -18,32 +19,6 @@
 #include "route.h"
 
 using namespace std;
-
-class CompareCost {
-public:
-    bool operator()(route* route1, route* route2) {
-    	if(route1->getAvgCost() < route2->getAvgCost()){
-    		return false;
-    	}
-
-    	else{
-    		return true;
-    	}
-    }
-};
-
-class CompareTime {
-public:
-	bool operator()(route* route1, route* route2) {
-		if(route1->getAvgTime() < route2->getAvgTime()){
-			return false;
-		}
-
-		else{
-			return true;
-		}
-	}
-};
 
 class ComparePath {
 public:
@@ -58,7 +33,13 @@ public:
 	}
 };
 
-int main(){
+int main(int argc, char* argv[]){
+	// The following is disabled for Eclipse!
+	// FYI -- Need to add command line args later~
+	/*if(argc != 7){
+		cout << "You haven't entered enough command line arguments!" << endl;
+		return 0;
+	}*/
 	ifstream cities;
 	cities.open("cities.csv");
 	ifstream routes;
@@ -76,6 +57,7 @@ int main(){
 	map<string, city*> cityMap;
 	map<string, city*> countryMap;
 
+	// PARSING DOSE CITIES BRO
 	while(!cities.eof()){
 		string country;
 		string cityName;
@@ -92,6 +74,7 @@ int main(){
 		}
 	}
 
+	// MOAR PARSING BUT WITH ROUTES BRO
 	while(!routes.eof()){
 		string origin;
 		string destination;
@@ -113,56 +96,7 @@ int main(){
 		}
 	}
 
-	// DEBUG COUT TO CONFIRM COMPILING
 	cout << "-- COMPILE CONFIRMED --" << endl;
-
-	/*
-	// DEBUG -- TESTING MAPS
-	city* debugCity = cityMap["Abu Dhabi"];
-	vector<route* > testVector = debugCity->getDestinations();
-	for(int i = 0; i < testVector.size(); i++){
-		cout << "---------" << endl;
-		cout << testVector[i]->getOrigin()->getCity() << endl;
-		cout << testVector[i]->getDestination()->getCity() << endl;
-		cout << testVector[i]->getTypeOfTrasport() << endl;
-		cout << testVector[i]->getAvgCost() << endl;
-		cout << testVector[i]->getActualCost() << endl;
-		cout << "--" << endl;
-		cout << testVector[i]->getAvgTime() << endl;
-		cout << testVector[i]->getActualTime() << endl;
-		cout << "\n" << endl;
-	}
-
-	// DEBUG -- TESTING PRIORITY QUEUE (COST)
-	priority_queue<route*, vector<route* >, CompareCost> costQueue;
-	// city* debugCity = cityMap["Abu Dhabi"];
-	// vector<route* > testVector = debugCity->getDestinations();
-	for(int i = 0; i < testVector.size(); i++){
-		costQueue.push(testVector[i]);
-	}
-
-	while(!costQueue.empty()){
-		route* tempRoute = costQueue.top();
-		cout << tempRoute->getDestination()->getCity() << endl;
-		costQueue.pop();
-	}
-
-	cout << "-------------------" << endl;
-
-	// DEBUG -- TESTING PRIORITY QUEUE (TIME)
-	priority_queue<route*, vector<route* >, CompareTime> timeQueue;
-	// city* debugCity = cityMap["Abu Dhabi"];
-	// vector<route* > testVector = debugCity->getDestinations();
-	for(int i = 0; i < testVector.size(); i++){
-		timeQueue.push(testVector[i]);
-	}
-
-	while(!timeQueue.empty()){
-		route* tempRoute = timeQueue.top();
-		cout << tempRoute->getDestination()->getCity() << endl;
-		timeQueue.pop();
-	}
-	*/
 
 	/******************************
 	 * 							  *
@@ -172,6 +106,7 @@ int main(){
 	// DEBUG VALUES
 	string origin = "Italy";
 	string destination = "Kazakhstan";
+	string compSwitch = "fastest";
 	city* originCity;
 	city* destinationCity;
 
@@ -200,33 +135,8 @@ int main(){
 		}
 	}
 
-	// DEBUG COUTS -- TESTING FINDING CITY POINTERS FROM HASHMAP
-	// cout << "Origin name: " << originCity->getCountry() << endl;
-	// cout << "Destination name: " << destinationCity->getCountry() << endl;
-
-	/*vector<route*> routesOnTheWay;
-	city* currentCity = originCity;
-	int i = 0;
-	while(currentCity->getCity().compare(destinationCity->getCity()) != 0 && i <= 10){
-		currentCity->visitCity();
-		vector<route*> currentCityDests = currentCity->getDestinations();
-		priority_queue<route*, vector<route*>, CompareCost> test1;
-		for(int i = 0; i < currentCityDests.size(); i++){
-			test1.push(currentCityDests[i]);
-		}
-		if(test1.top()->getDestination()->isVisited()){
-			test1.pop();
-		}
-		route* bestRoute = test1.top();
-		routesOnTheWay.push_back(bestRoute);
-		cout << "Destination City: " << bestRoute->getDestination()->getCountry() << endl;
-		currentCity = bestRoute->getDestination();
-		i++;
-	}*/
-
 	originCity->setPathValue(0);
 	priority_queue<city*, vector<city*>, ComparePath> pathQueue;
-	int curDistance = 0;
 	pathQueue.push(originCity);
 	while(!pathQueue.empty()){
 		city* temp = pathQueue.top();
@@ -238,16 +148,23 @@ int main(){
 			break;
 		}
 		vector<route*> tempDest = temp->getDestinations();
-		cout << temp->pathvalue << endl;
 		for(int i = 0; i < tempDest.size(); i++){
 			city* tempDestCity = tempDest[i]->getDestination();
 			if(tempDestCity->priorCity == NULL){
 				tempDestCity->setPriorCity(temp);
 			}
-			cout << tempDestCity->priorCity->getCity() << " goes to " << tempDestCity->getCity() << endl;
-			double tempDestWeight = tempDest[i]->getAvgTime();
+			double tempDestWeight;
+			if(strcmp("fastest", compSwitch.c_str()) == 0){
+				tempDestWeight = tempDest[i]->getAvgTime();
+			}
+			else if(strcmp("cheapest", compSwitch.c_str()) == 0){
+				tempDestWeight = tempDest[i]->getAvgCost();
+			}
+			else{
+				cout << "Please select either 'fastest' or 'cheapest'" << endl;
+				return 0;
+			}
 			if((!tempDestCity->isVisited()) && ((temp->pathvalue + tempDestWeight) < tempDestCity->pathvalue)){
-				cout << tempDestCity->getCity() << ": "<< temp->pathvalue + tempDestWeight << endl;
 				tempDestCity->setPathValue(temp->pathvalue + tempDestWeight);
 				pathQueue.push(tempDestCity);
 				tempDestCity->setPriorCity(temp);
@@ -256,17 +173,29 @@ int main(){
 		temp->visitCity();
 	}
 
-	cout << "-------------------" << endl;
-
+	stack<city*> routeFound;
 	city* currentCity = destinationCity;
 	int i = 0;
 	while(currentCity != NULL && currentCity != originCity && i <= 10){
-		cout << currentCity->getCity() << endl;
+		routeFound.push(currentCity);
 		currentCity = currentCity->priorCity;
 		i++;
 	}
 
-	cout << originCity->getCity() << endl;
+	routeFound.push(originCity);
+
+	// CURRENTLY HAS ISSUE WITH DUPLICATING ROUTES WITH MORE THAN JUST ONE MODE OF TRANSPORT
+	while(!routeFound.empty()){
+		city* previousMarker = routeFound.top();
+		routeFound.pop();
+		city* currentMarker = routeFound.top();
+		for(int i = 0; i < previousMarker->getDestinations().size(); i++){
+			if(previousMarker->getDestinations()[i]->getDestination() == currentMarker){
+				cout << previousMarker->getCity() << ", " << previousMarker->getCountry() << " -> " << currentMarker->getCity() << ", " << currentMarker->getCountry();
+				cout << "(" << previousMarker->getDestinations()[i]->getTypeOfTransport() << " - " << previousMarker->getDestinations()[i]->getActualTime() << " hours - $" << previousMarker->getDestinations()[i]->getActualCost() << ")" << endl;
+			}
+		}
+	}
 
 	return 0;
 }
