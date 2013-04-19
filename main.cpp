@@ -74,21 +74,28 @@ void clearTime(priority_queue<route*, vector<route*>, CompareTime> &pq)
 int main(int argc, char* argv[]){
 	// The following is disabled for Eclipse!
 	// FYI -- Need to add command line args later~
-	/*if(argc != 7){
+	if(argc != 7){
 		cout << "You haven't entered enough command line arguments!" << endl;
 		return 0;
-	}*/
+	}
+
+	string citiesCSV = argv[1];
+	string routesCSV = argv[2];
+
+	//string citiesCSV = "cities_big.csv";
+	//string routesCSV = "routes_big.csv";
+
 	ifstream cities;
-	cities.open("cities_old.csv");
+	cities.open(citiesCSV.c_str());
 	ifstream routes;
-	routes.open("routes_old.csv");
+	routes.open(routesCSV.c_str());
 	if(!cities.good()){
-		cout << "cities.csv is corrupt!" << endl;
+		cout << "Your cities csv file is corrupt!" << endl;
 		return 0;
 	}
 
 	if(!routes.good()){
-		cout << "routes.csv is corrupt!" << endl;
+		cout << "Your routes csv file is corrupt!" << endl;
 		return 0;
 	}
 
@@ -134,18 +141,20 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	cout << "-- COMPILE CONFIRMED --" << endl;
-
 	/******************************
 	 * 							  *
 	 * START DIJKSTRA'S ALGORITHM *
 	 * 							  *
 	 ******************************/
 	// DEBUG VALUES
-	string origin = "Italy";
-	string destination = "Kazakhstan";
+	string origin = argv[4];
+	string destination = argv[5];
+	string compSwitch = argv[6];
+	string outputFileName = argv[3];
+	/*string origin = "fforcgxrop";
+	string destination = "mhxzwmvbpd";
 	string compSwitch = "cheapest";
-	string outputFileName = "sampleOutputItalyKazakhstanCheapest.html";
+	string outputFileName = "lolwut.html";*/
 	city* originCity;
 	city* destinationCity;
 
@@ -221,33 +230,42 @@ int main(int argc, char* argv[]){
 	routeFound.push(originCity);
 
 	vector<route*> correctRoute;
-	while(!routeFound.empty()){
-		city* previousMarker = routeFound.top();
-		routeFound.pop();
-		city* currentMarker = routeFound.top();
-		if(strcmp("fastest", compSwitch.c_str()) == 0){
+	if(strcmp("fastest", compSwitch.c_str()) == 0){
+		while(!routeFound.empty()){
+			city* previousMarker = routeFound.top();
+			routeFound.pop();
+			city* currentMarker = routeFound.top();
 			priority_queue<route*, vector<route*>, CompareTime> pathQueue;
-		}
-		else if(strcmp("cheapest", compSwitch.c_str()) == 0){
-			priority_queue<route*, vector<route*>, CompareCost> pathQueue;
-		}
-		else{
-			cout << "Please select either 'fastest' or 'cheapest'" << endl;
-			return 0;
-		}
-		// clear(pathQueue);
-		for(int i = 0; i < previousMarker->getDestinations().size(); i++){
-			if(previousMarker->getDestinations()[i]->getDestination() == currentMarker){
-				pathQueue.push(previousMarker->getDestinations()[i]);
+			for(int i = 0; i < previousMarker->getDestinations().size(); i++){
+				if(previousMarker->getDestinations()[i]->getDestination() == currentMarker){
+					pathQueue.push(previousMarker->getDestinations()[i]);
+				}
+			}
+			if(!pathQueue.empty()){
+				correctRoute.push_back(pathQueue.top());
 			}
 		}
-		if(!pathQueue.empty()){
-			correctRoute.push_back(pathQueue.top());
+	}
+
+	if(strcmp("cheapest", compSwitch.c_str()) == 0){
+		while(!routeFound.empty()){
+			city* previousMarker = routeFound.top();
+			routeFound.pop();
+			city* currentMarker = routeFound.top();
+			priority_queue<route*, vector<route*>, CompareCost> pathQueue;
+			for(int i = 0; i < previousMarker->getDestinations().size(); i++){
+				if(previousMarker->getDestinations()[i]->getDestination() == currentMarker){
+					pathQueue.push(previousMarker->getDestinations()[i]);
+				}
+			}
+			if(!pathQueue.empty()){
+				correctRoute.push_back(pathQueue.top());
+			}
 		}
 	}
 
 	ofstream htmlOutput;
-	htmlOutput.open(outputFileName);
+	htmlOutput.open(outputFileName.c_str());
 	if(htmlOutput.is_open()){
 		htmlOutput << "<html>\n";
 		htmlOutput << "<head>\n";
@@ -275,8 +293,6 @@ int main(int argc, char* argv[]){
 		htmlOutput << "</html>\n";
 	}
 	htmlOutput.close();
-
-	cout << "WOOT WROTE TO FILE!" << endl;
 
 	return 0;
 }
