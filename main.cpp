@@ -33,6 +33,38 @@ public:
 	}
 };
 
+class CompareTime {
+public:
+	bool operator()(route* route1, route* route2) {
+		if(route1->getAvgTime() < route2->getAvgTime()){
+			return false;
+		}
+
+		else{
+			return true;
+		}
+	}
+};
+
+class CompareCost {
+public:
+	bool operator()(route* route1, route* route2) {
+		if(route1->getAvgCost() < route2->getAvgCost()){
+			return false;
+		}
+
+		else{
+			return true;
+		}
+	}
+};
+
+void clear(priority_queue<route*, vector<route*>, CompareCost> &pq)
+{
+	priority_queue<route*, vector<route*>, CompareCost> empty;
+	swap(pq, empty);
+}
+
 int main(int argc, char* argv[]){
 	// The following is disabled for Eclipse!
 	// FYI -- Need to add command line args later~
@@ -41,9 +73,9 @@ int main(int argc, char* argv[]){
 		return 0;
 	}*/
 	ifstream cities;
-	cities.open("cities.csv");
+	cities.open("cities_old.csv");
 	ifstream routes;
-	routes.open("routes.csv");
+	routes.open("routes_old.csv");
 	if(!cities.good()){
 		cout << "cities.csv is corrupt!" << endl;
 		return 0;
@@ -106,7 +138,7 @@ int main(int argc, char* argv[]){
 	// DEBUG VALUES
 	string origin = "Italy";
 	string destination = "Kazakhstan";
-	string compSwitch = "fastest";
+	string compSwitch = "cheapest";
 	city* originCity;
 	city* destinationCity;
 
@@ -175,25 +207,26 @@ int main(int argc, char* argv[]){
 
 	stack<city*> routeFound;
 	city* currentCity = destinationCity;
-	int i = 0;
-	while(currentCity != NULL && currentCity != originCity && i <= 10){
+	while(currentCity != NULL && currentCity != originCity){
 		routeFound.push(currentCity);
 		currentCity = currentCity->priorCity;
-		i++;
 	}
 
 	routeFound.push(originCity);
-
-	// CURRENTLY HAS ISSUE WITH DUPLICATING ROUTES WITH MORE THAN JUST ONE MODE OF TRANSPORT
 	while(!routeFound.empty()){
 		city* previousMarker = routeFound.top();
 		routeFound.pop();
 		city* currentMarker = routeFound.top();
+		priority_queue<route*, vector<route*>, CompareCost> pathQueue;
+		clear(pathQueue);
 		for(int i = 0; i < previousMarker->getDestinations().size(); i++){
 			if(previousMarker->getDestinations()[i]->getDestination() == currentMarker){
-				cout << previousMarker->getCity() << ", " << previousMarker->getCountry() << " -> " << currentMarker->getCity() << ", " << currentMarker->getCountry();
-				cout << "(" << previousMarker->getDestinations()[i]->getTypeOfTransport() << " - " << previousMarker->getDestinations()[i]->getActualTime() << " hours - $" << previousMarker->getDestinations()[i]->getActualCost() << ")" << endl;
+				pathQueue.push(previousMarker->getDestinations()[i]);
 			}
+		}
+		if(!pathQueue.empty()){
+			cout << previousMarker->getCity() << ", " << previousMarker->getCountry() << " -> " << pathQueue.top()->getDestination()->getCity() << ", " << pathQueue.top()->getDestination()->getCountry();
+			cout << "(" << pathQueue.top()->getTypeOfTransport() << " - " << pathQueue.top()->getActualTime() << " hours - $" << pathQueue.top()->getActualCost() << ")" << endl;
 		}
 	}
 

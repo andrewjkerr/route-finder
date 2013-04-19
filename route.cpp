@@ -19,7 +19,7 @@ route::route(city* origin, city* destination, string typeOfTransport, double avg
 	this->actualTime = avgTime;
 	this->actualCost = avgCost;
 	if(strcmp("plane", typeOfTransport.c_str()) == 0){
-		this->flightMultiplier = 99999.99;
+		this->flightMultiplier = 100;
 	}
 	else{
 		this->flightMultiplier = 1.0;

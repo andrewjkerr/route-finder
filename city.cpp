@@ -20,7 +20,7 @@ city::city(string country, string cityName, string latitude, string longitude){
 	this->longitude = longitude;
 	this->visited = false;
 	this->priorCity = NULL;
-	this->pathvalue = 99999999.99;
+	this->pathvalue = 999999.99;
 }
 
 void city::pb(route* datRoute){
