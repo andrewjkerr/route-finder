@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <map>
 #include "city.h"
@@ -220,7 +221,7 @@ int main(int argc, char* argv[]){
 		}
 		temp->visitCity();
 	}
-
+	
 	stack<city*> routeFound;
 	city* currentCity = destinationCity;
 	while(currentCity != NULL && currentCity != originCity){
@@ -231,7 +232,7 @@ int main(int argc, char* argv[]){
 
 	vector<route*> correctRoute;
 	if(strcmp("fastest", compSwitch.c_str()) == 0){
-		while(!routeFound.empty()){
+		while(routeFound.size() > 1){
 			city* previousMarker = routeFound.top();
 			routeFound.pop();
 			city* currentMarker = routeFound.top();
@@ -246,9 +247,9 @@ int main(int argc, char* argv[]){
 			}
 		}
 	}
-
+	
 	if(strcmp("cheapest", compSwitch.c_str()) == 0){
-		while(!routeFound.empty()){
+		while(routeFound.size() > 1){
 			city* previousMarker = routeFound.top();
 			routeFound.pop();
 			city* currentMarker = routeFound.top();
