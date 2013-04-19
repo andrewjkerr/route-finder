@@ -115,9 +115,6 @@ stack<city*> dijkstra(string origin, string destination, string compSwitch){
 		city* temp = pathQueue.top();
 		pathQueue.pop();
 
-		if(temp->isVisited()){
-			continue;
-		}
 		if(temp->pathvalue == 99999999.99){
 			break;
 		}
@@ -148,7 +145,7 @@ stack<city*> dijkstra(string origin, string destination, string compSwitch){
 
 			// Checks whether: 1) the node was already visited and
 			// 2) whether the pathvalue of origin + weight is greater than the pathvalue of the destination
-			if((!tempDestCity->isVisited()) && ((temp->pathvalue + tempDestWeight) < tempDestCity->pathvalue)){
+			if(((temp->pathvalue + tempDestWeight) < tempDestCity->pathvalue)){
 
 				// Changes the pathvalue of the destination
 				tempDestCity->setPathValue(temp->pathvalue + tempDestWeight);
