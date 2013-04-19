@@ -59,9 +59,15 @@ public:
 	}
 };
 
-void clear(priority_queue<route*, vector<route*>, CompareCost> &pq)
+void clearCost(priority_queue<route*, vector<route*>, CompareCost> &pq)
 {
 	priority_queue<route*, vector<route*>, CompareCost> empty;
+	swap(pq, empty);
+}
+
+void clearTime(priority_queue<route*, vector<route*>, CompareTime> &pq)
+{
+	priority_queue<route*, vector<route*>, CompareTime> empty;
 	swap(pq, empty);
 }
 
@@ -139,6 +145,7 @@ int main(int argc, char* argv[]){
 	string origin = "Italy";
 	string destination = "Kazakhstan";
 	string compSwitch = "cheapest";
+	string outputFileName = "sampleOutputItalyKazakhstanCheapest.html";
 	city* originCity;
 	city* destinationCity;
 
@@ -211,24 +218,65 @@ int main(int argc, char* argv[]){
 		routeFound.push(currentCity);
 		currentCity = currentCity->priorCity;
 	}
-
 	routeFound.push(originCity);
+
+	vector<route*> correctRoute;
 	while(!routeFound.empty()){
 		city* previousMarker = routeFound.top();
 		routeFound.pop();
 		city* currentMarker = routeFound.top();
-		priority_queue<route*, vector<route*>, CompareCost> pathQueue;
-		clear(pathQueue);
+		if(strcmp("fastest", compSwitch.c_str()) == 0){
+			priority_queue<route*, vector<route*>, CompareTime> pathQueue;
+		}
+		else if(strcmp("cheapest", compSwitch.c_str()) == 0){
+			priority_queue<route*, vector<route*>, CompareCost> pathQueue;
+		}
+		else{
+			cout << "Please select either 'fastest' or 'cheapest'" << endl;
+			return 0;
+		}
+		// clear(pathQueue);
 		for(int i = 0; i < previousMarker->getDestinations().size(); i++){
 			if(previousMarker->getDestinations()[i]->getDestination() == currentMarker){
 				pathQueue.push(previousMarker->getDestinations()[i]);
 			}
 		}
 		if(!pathQueue.empty()){
-			cout << previousMarker->getCity() << ", " << previousMarker->getCountry() << " -> " << pathQueue.top()->getDestination()->getCity() << ", " << pathQueue.top()->getDestination()->getCountry();
-			cout << "(" << pathQueue.top()->getTypeOfTransport() << " - " << pathQueue.top()->getActualTime() << " hours - $" << pathQueue.top()->getActualCost() << ")" << endl;
+			correctRoute.push_back(pathQueue.top());
 		}
 	}
+
+	ofstream htmlOutput;
+	htmlOutput.open(outputFileName);
+	if(htmlOutput.is_open()){
+		htmlOutput << "<html>\n";
+		htmlOutput << "<head>\n";
+		compSwitch[0] = toupper(compSwitch[0]);
+		htmlOutput << "<title>" << compSwitch << " path from " << origin << " to " << destination << "</title></head>\n";
+		htmlOutput << "<script type='text/javascript' src='http://maps.google.com/maps/api/js?sensor=false'></script>\n";
+		htmlOutput << "<script>function initialize() { \n";
+		htmlOutput << "var myOptions = { zoom: 3, center: new google.maps.LatLng(0, 0), mapTypeId: google.maps.MapTypeId.ROADMAP}; \n";
+		htmlOutput << "var map=new google.maps.Map(document.getElementById('map'), myOptions); \n";
+		int markerNum = 0;
+		for(int i = 0; i < correctRoute.size(); i++){
+			htmlOutput << "var marker" << markerNum << " = new google.maps.Marker({ position: new google.maps.LatLng("<< correctRoute[i]->getOrigin()->getLatitude() << ", " << correctRoute[i]->getOrigin()->getLongitude() << "), map: map, title:'" << correctRoute[i]->getOrigin()->getCity() << ", " << correctRoute[i]->getOrigin()->getCountry() << "'});"  << "\n";
+			markerNum++;
+			htmlOutput << "var marker" << markerNum << " = new google.maps.Marker({ position: new google.maps.LatLng("<< correctRoute[i]->getDestination()->getLatitude() << ", " << correctRoute[i]->getDestination()->getLongitude() << "), map: map, title:'" << correctRoute[i]->getDestination()->getCity() << ", " << correctRoute[i]->getDestination()->getCountry() << "'});"  << "\n";
+			markerNum++;
+			htmlOutput << "var contentString" << i << " = \"" << correctRoute[i]->getOrigin()->getCity() << ", " << correctRoute[i]->getOrigin()->getCountry() << " --> " << correctRoute[i]->getDestination()->getCity() << ", " << correctRoute[i]->getDestination()->getCountry() << " (" << correctRoute[i]->getTypeOfTransport() << " - " << correctRoute[i]->getActualTime() << " hours - $" << correctRoute[i]->getActualCost() << ")\";" << "\n";
+			htmlOutput << "var path" << i << " = new google.maps.Polyline({ path: [new google.maps.LatLng(" << correctRoute[i]->getOrigin()->getLatitude() << ", " << correctRoute[i]->getOrigin()->getLongitude() << "), new google.maps.LatLng("<< correctRoute[i]->getDestination()->getLatitude() << ", " << correctRoute[i]->getDestination()->getLongitude() << ")], strokeColor: '#0000FF', strokeOpacity: 1.0, strokeWeight: 2});" << "\n";
+			htmlOutput << "path" << i << ".setMap(map);\n";
+			htmlOutput << "google.maps.event.addListener(path" << i << ", 'click', function(event) { alert(contentString" << i << "); });\n";
+		}
+		htmlOutput << "} google.maps.event.addDomListener(window, 'load', initialize);\n";
+		htmlOutput << "</script>";
+		htmlOutput << "</head>\n";
+		htmlOutput << "<body><div id='map' style='width:100%;height:100%;'></div></body>\n";
+		htmlOutput << "</html>\n";
+	}
+	htmlOutput.close();
+
+	cout << "WOOT WROTE TO FILE!" << endl;
 
 	return 0;
 }
